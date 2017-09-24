@@ -25,6 +25,38 @@ def get_sample(path_ogg):
     return samples, sample_rate
 
 
+def emodict_from_path(path):
+    """
+    :param path: .wav file
+    :return:
+    """
+    (samples, sample_rate) = sf.read(path)
+    buffer_length = len(samples)
+
+    c_buffer = Vokaturi.SampleArrayC(buffer_length)
+    if samples.ndim == 1:
+        c_buffer[:] = samples[:]  # mono
+    else:
+        c_buffer[:] = 0.5 * (samples[:,0] + 0.0 + samples[:,1])  # stereo
+
+    voice = Vokaturi.Voice(sample_rate, buffer_length)
+
+    # filling Voice with `samples`
+    voice.fill(buffer_length, c_buffer)
+    quality = Vokaturi.Quality()
+    emotion_probabilities = Vokaturi.EmotionProbabilities()
+    voice.extract(quality, emotion_probabilities )
+    voice.destroy()
+
+    emo_dict = {"neutrality": emotion_probabilities.neutrality,
+                "happiness": emotion_probabilities.happiness,
+                "sadness": emotion_probabilities.sadness,
+                "anger": emotion_probabilities.anger,
+                "fear": emotion_probabilities.fear}
+
+    return quality.valid, emo_dict
+
+
 def emotion_wrapper(path_ogg):
     """
     :param path_ogg: path to .ogg file
@@ -43,14 +75,14 @@ def emotion_wrapper(path_ogg):
     voice.fill(buffer_length, c_buffer)
     quality = Vokaturi.Quality()
     emotion_probabilities = Vokaturi.EmotionProbabilities()
-    voice.extract(quality, emotion_probabilities )
+    voice.extract(quality, emotion_probabilities)
     voice.destroy()
 
-    emo_dict = {"neutrality": emotion_probabilities .neutrality,
-                "happiness": emotion_probabilities .happiness,
-                "sadness": emotion_probabilities .sadness,
-                "anger": emotion_probabilities .anger,
-                "fear": emotion_probabilities .fear}
+    emo_dict = {"neutrality": emotion_probabilities.neutrality,
+                "happiness": emotion_probabilities.happiness,
+                "sadness": emotion_probabilities.sadness,
+                "anger": emotion_probabilities.anger,
+                "fear": emotion_probabilities.fear}
 
     return quality.valid, emo_dict
 

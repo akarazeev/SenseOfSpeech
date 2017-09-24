@@ -7,7 +7,7 @@ import json
 import sys
 import os
 
-from util import emotion_wrapper, with_emoji, send_emo
+from util import emotion_wrapper, with_emoji, send_emo, emodict_from_path
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -38,7 +38,7 @@ rev_actions = dict(zip(actions.values(), actions.keys()))
 
 
 def get_token():
-    path = 'token.json'
+    path = 'res/token.json'
     with open(path) as jsn:
         data = json.load(jsn)
     return data['token']
@@ -94,6 +94,31 @@ def button(bot, update):
         print('-> ' + send_emo(emotion))
         bot.send_voice(chat_id=query.message.chat_id, voice=open(send_emo(emotion), 'rb'))
 
+        # Send emotions by Tim Urban: https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator
+        emo_mapping = {
+            'anger': ':astonished:',
+            'fear': ':scream:',
+            'happiness': ':smile:',
+            'neutrality': ':neutral_face:',
+            'sadness': ':pensive:'
+        }
+
+        text = []
+
+        text.append(' --- Emotions by Tim Urban: ===> ')
+        valid, emo_dict = emodict_from_path(send_emo(emotion))
+
+        if valid:
+            text.extend(with_emoji(emo_dict, emo_mapping))
+        else:
+            err_message = "\_(^_^)_/"
+            text.append(err_message)
+        text.append(' <==== "Inside the mind of a master procrastinator" --- ')
+
+        text = '\n'.join(text)
+
+        query.message.reply_text(text)
+
 
 def help_function(bot, update):
     update.message.reply_text('Help!')
@@ -132,7 +157,6 @@ def emotion_handler(bot, update):
     text = []
 
     text.append(' -----|=======> ')
-    # file_name_ogg = 'wow_sure.ogg'
     valid, emo_dict = emotion_wrapper(file_name_ogg)
 
     if valid:
