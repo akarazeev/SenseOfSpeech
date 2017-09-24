@@ -22,8 +22,11 @@ logger = logging.getLogger(__name__)
 actions = {
     'DETECT': '1',
     'TRAIN': '2',
-    'Fear': '3',
-    'Happy': '4'
+    'Neutral': '3',
+    'Happy': '4',
+    'Sad': '5',
+    'Excited': '6',
+    'Fear': '7'
 }
 
 rev_actions = dict(zip(actions.values(), actions.keys()))
@@ -63,7 +66,10 @@ def button(bot, update):
                               message_id=query.message.message_id)
 
         keyboard = [[InlineKeyboardButton("Fear", callback_data=actions['Fear']),
-                     InlineKeyboardButton("Happy", callback_data=actions['Happy'])]]
+					InlineKeyboardButton("Happy", callback_data=actions['Happy']),
+					InlineKeyboardButton("Sad", callback_data=actions['Sad']),
+					InlineKeyboardButton("Excited", callback_data=actions['Excited']),
+					InlineKeyboardButton("Fear", callback_data=actions['Fear'])]]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.message.reply_text('Please choose emotion:', reply_markup=reply_markup)
@@ -117,7 +123,7 @@ def emotion_handler(bot, update):
     if valid:
         text.extend(with_emoji(emo_dict, emo_mapping))
     else:
-        err_message = "(-_-)"
+        err_message = "\_(^_^)_/"
         text.append(err_message)
     text.append(' <=======|----- ')
 
