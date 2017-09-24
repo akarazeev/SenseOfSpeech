@@ -7,7 +7,7 @@ import json
 import sys
 import os
 
-from util import emotion_wrapper, with_emoji
+from util import emotion_wrapper, with_emoji, send_emo
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -20,13 +20,13 @@ logger = logging.getLogger(__name__)
 #############
 
 actions = {
-    'DETECT': '1',
-    'TRAIN': '2',
+    'DETECT':  '1',
+    'TRAIN':   '2',
     'Neutral': '3',
-    'Happy': '4',
-    'Sad': '5',
+    'Happy':   '4',
+    'Sad':     '5',
     'Excited': '6',
-    'Fear': '7'
+    'Fear':    '7'
 }
 
 rev_actions = dict(zip(actions.values(), actions.keys()))
@@ -35,6 +35,7 @@ rev_actions = dict(zip(actions.values(), actions.keys()))
 #  Here Goes Bot's #
 #  Implementation  #
 ####################
+
 
 def get_token():
     path = 'token.json'
@@ -65,19 +66,33 @@ def button(bot, update):
                               chat_id=query.message.chat_id,
                               message_id=query.message.message_id)
 
-        keyboard = [[InlineKeyboardButton("Fear", callback_data=actions['Fear']),
-					InlineKeyboardButton("Happy", callback_data=actions['Happy']),
-					InlineKeyboardButton("Sad", callback_data=actions['Sad']),
-					InlineKeyboardButton("Excited", callback_data=actions['Excited']),
-					InlineKeyboardButton("Fear", callback_data=actions['Fear'])]]
+        keyboard = [[InlineKeyboardButton("Neutral", callback_data=actions['Neutral']),
+                     InlineKeyboardButton("Happy", callback_data=actions['Happy']),
+                     InlineKeyboardButton("Sad", callback_data=actions['Sad']),
+                     InlineKeyboardButton("Excited", callback_data=actions['Excited']),
+                     InlineKeyboardButton("Fear", callback_data=actions['Fear'])]]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.message.reply_text('Please choose emotion:', reply_markup=reply_markup)
     else:
-        bot.edit_message_text(text="So you chose {emo}".format(emo=rev_actions[query.data]),
+        mapping = {
+            'anger':      'Excited',
+            'fear':       'Fear',
+            'happiness':  'Happy',
+            'neutrality': 'Neutral',
+            'sadness':    'Sad'
+        }
+
+        rev_mapping= dict(zip(mapping.values(), mapping.keys()))
+
+        emo_action = rev_actions[query.data]
+        emotion = rev_mapping[emo_action]
+
+        bot.edit_message_text(text="So you chose {emo}. Listen and record your own speech".format(emo=emo_action),
                               chat_id=query.message.chat_id,
                               message_id=query.message.message_id)
-
+        print('-> ' + send_emo(emotion))
+        bot.send_voice(chat_id=query.message.chat_id, voice=open(send_emo(emotion), 'rb'))
 
 
 def help_function(bot, update):
@@ -156,4 +171,5 @@ def main():
 
 if __name__ == '__main__':
     print("-> Hi!")
+    # assert 1 == 0
     main()

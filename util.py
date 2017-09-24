@@ -2,6 +2,7 @@ import soundfile as sf
 import audiotranscode
 import numpy as np
 import emoji
+import os
 
 import sys
 sys.path.append("OpenVokaturi-2-2a/api")
@@ -67,6 +68,28 @@ def with_emoji(emo_dict, mapping):
                                                                      prob_str=prob), use_aliases=True))
 
     return text
+
+
+def get_dict_of_emotions():
+    """
+    :return: dict of emotions and paths to audio examples
+    """
+    list_res = list(filter(lambda x: x[0] != '.', os.listdir('res/')))
+    splitted = list(map(lambda x: x.split('_'), list_res))
+    tuples3 = list(map(lambda x: (x[1], '_'.join(x)), filter(lambda x: x[0] == '3', splitted)))
+
+    return dict(tuples3)
+
+
+def send_emo(emotion, abs_path=''):
+    """
+    :param emotion:
+    :param abs_path: absolute path to this file
+    """
+    path = get_dict_of_emotions()[emotion]
+
+    return os.path.join(abs_path, 'res', path)
+
 
 if __name__ == '__main__':
     raise RuntimeError
