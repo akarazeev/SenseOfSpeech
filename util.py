@@ -1,13 +1,20 @@
 import soundfile as sf
-import audiotranscode
+# import audiotranscode
 import numpy as np
+import subprocess
 import emoji
 import os
 
 import sys
 sys.path.append("OpenVokaturi-2-2a/api")
 import Vokaturi
-Vokaturi.load("OpenVokaturi-2-2a/lib/Vokaturi_mac.so")
+
+OS = 'LINUX'
+
+if OS == 'MAC':
+    pass
+elif OS == 'LINUX':
+    Vokaturi.load("OpenVokaturi-2-2a/lib/Vokaturi_linux32.so")
 
 
 def get_sample(path_ogg):
@@ -17,8 +24,11 @@ def get_sample(path_ogg):
     """
     path_wav = path_ogg[:-3] + 'wav'
 
-    at = audiotranscode.AudioTranscode()
-    at.transcode(path_ogg, path_wav)
+    # FIX:
+    # at = audiotranscode.AudioTranscode()
+    # at.transcode(path_ogg, path_wav)
+
+    ogg_to_wav(path_ogg, path_wav)
 
     (samples, sample_rate) = sf.read(path_wav)
 
@@ -121,6 +131,15 @@ def send_emo(emotion, abs_path=''):
     path = get_dict_of_emotions()[emotion]
 
     return os.path.join(abs_path, 'res', path)
+
+
+def ogg_to_wav(path_ogg, path_wav):
+    """
+    Convert .ogg to .wav format.
+    """
+    bashCommand = "ffmpeg -i {ogg} {wav}".format(ogg=path_ogg, wav=path_wav)
+    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+    output, error = process.communicate()
 
 
 if __name__ == '__main__':
