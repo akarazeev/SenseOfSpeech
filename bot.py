@@ -37,12 +37,12 @@ emo_mapping = {
 }
 
 mapping = {
-            'anger':      'Excited',
-            'fear':       'Fear',
-            'happiness':  'Happy',
-            'neutrality': 'Neutral',
-            'sadness':    'Sad'
-        }
+    'anger':      'Excited',
+    'fear':       'Fear',
+    'happiness':  'Happy',
+    'neutrality': 'Neutral',
+    'sadness':    'Sad'
+}
 
 ####################
 #  Here Goes Bot's #
