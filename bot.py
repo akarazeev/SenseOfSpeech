@@ -4,7 +4,7 @@ import logging
 import json
 import os
 
-from util import emotion_wrapper, with_emoji, send_emo, emodict_from_path
+from util import emotion_wrapper, with_emoji, send_emo, emodict_from_path, OS
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -36,6 +36,14 @@ emo_mapping = {
     'sadness':    ':pensive:'
 }
 
+mapping = {
+            'anger':      'Excited',
+            'fear':       'Fear',
+            'happiness':  'Happy',
+            'neutrality': 'Neutral',
+            'sadness':    'Sad'
+        }
+
 ####################
 #  Here Goes Bot's #
 #  Implementation  #
@@ -43,7 +51,10 @@ emo_mapping = {
 
 
 def get_token():
-    path = 'res/token.json'
+    if OS == 'mac':
+        path = 'res/token_finn.json'
+    elif OS == 'linux':
+        path = 'res/token_sos.json'
     with open(path) as jsn:
         data = json.load(jsn)
     return data['token']
@@ -78,14 +89,6 @@ def button(bot, update):
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.message.reply_text('Please choose emotion:', reply_markup=reply_markup)
     else:
-        mapping = {
-            'anger':      'Excited',
-            'fear':       'Fear',
-            'happiness':  'Happy',
-            'neutrality': 'Neutral',
-            'sadness':    'Sad'
-        }
-
         rev_mapping= dict(zip(mapping.values(), mapping.keys()))
 
         emo_action = rev_actions[query.data]
