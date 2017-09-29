@@ -8,7 +8,8 @@ from open_vok.api import Vokaturi
 
 OS_MAPPING = {
     'darwin': 'mac',
-    'linux2': 'linux'
+    'linux2': 'linux',
+    'linux' : 'linux' 
 }
 
 OS = OS_MAPPING[sys.platform]
@@ -17,6 +18,7 @@ if OS == 'mac':
     import audiotranscode
     Vokaturi.load("open_vok/lib/Vokaturi_mac.so")
 elif OS == 'linux':
+    import audiotranscode
     Vokaturi.load("open_vok/lib/Vokaturi_linux32.so")
 
 
@@ -32,7 +34,9 @@ def get_sample(path_ogg):
         at = audiotranscode.AudioTranscode()
         at.transcode(path_ogg, path_wav)
     elif OS == 'linux':
-        ogg_to_wav(path_ogg, path_wav)
+        at = audiotranscode.AudioTranscode()
+        at.transcode(path_ogg, path_wav)
+        # ogg_to_wav(path_ogg, path_wav)
 
     (samples, sample_rate) = sf.read(path_wav)
 
