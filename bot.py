@@ -3,8 +3,12 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import json
 import os
 
-from util import logger, emotion_file_path, emo_distribution_text
+from util import logger, emotion_file_path, emo_distribution, to_text, emo_distance
 from accessories import actions, rev_actions, rev_mapping
+
+
+emo_sample_dict = None
+
 
 #######################################
 #  @SenseOfSpeech_bot implementation  #
@@ -65,6 +69,9 @@ def keyboard_answer(bot, query):
     Response to the selection on keyboard - send audio
     sample of selected emotion
     """
+
+    global emo_sample_dict
+
     emo_action = rev_actions[query.data]
     emotion = rev_mapping[emo_action]
 
@@ -78,17 +85,22 @@ def keyboard_answer(bot, query):
     # Send emotions by Tim Urban: https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator
     text = list()
     text.append(' --- Emotions by Tim Urban: ===> ')
-    text.extend(emo_distribution_text(emotion_file_path(emotion)))
+    valid, emo_dict = emo_distribution(emotion_file_path(emotion))
+    emo_sample_dict = emo_dict
+    text.extend(to_text(valid, emo_dict))
     text.append(' <==== "Inside the mind of a master procrastinator" --- ')
     text = '\n'.join(text)
 
     query.message.reply_text(text)
 
 
-def emotion_handler(bot, update):
+def voice_message_handler(bot, update):
     """
     Detect emotions in received voice message
     """
+
+    global emo_sample_dict
+
     file_id = update.message.voice.file_id
     file = bot.getFile(file_id)
 
@@ -99,7 +111,8 @@ def emotion_handler(bot, update):
 
     text = list()
     text.append(' -----|=======> ')
-    text.extend(emo_distribution_text(file_name_ogg))
+    valid, emo_dict = emo_distribution(file_name_ogg)
+    text.extend(to_text(valid, emo_dict))
     text.append(' <=======|----- ')
     text = '\n'.join(text)
 
@@ -107,6 +120,14 @@ def emotion_handler(bot, update):
     os.remove(file_name_wav)
 
     update.message.reply_text(text)
+
+    distance = emo_distance(emo_dict, emo_sample_dict)
+
+    update.message.reply_text("Distance is: {:.3f}".format(distance))
+
+    if distance < 0.2:
+        update.message.reply_text("Well done!")
+
 
 
 def help_function(bot, update):
@@ -132,7 +153,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.text, echo))
 
     # on voice messages - reply with emotions
-    dp.add_handler(MessageHandler(Filters.voice, emotion_handler))
+    dp.add_handler(MessageHandler(Filters.voice, voice_message_handler))
     dp.add_handler(CallbackQueryHandler(button))
 
     updater.start_polling()

@@ -1,4 +1,5 @@
 import soundfile as sf
+import numpy as np
 import subprocess
 import emoji
 import sys
@@ -90,7 +91,7 @@ def with_emoji(emo_dict, mapping):
     :param mapping:
     :return:
     """
-    text = []
+    text = list()
 
     for emo, prob in emo_dict.items():
         text.append(emoji.emojize('{emo_str}: {prob_str:.3f}'.format(emo_str=mapping[emo],
@@ -129,7 +130,14 @@ def ogg_to_wav(path_ogg, path_wav):
     process.communicate()
 
 
-def emo_distribution_text(file_name):
+def emo_distribution(file_name):
+    """
+    :param file_name:
+    :return: (valid, emo_dict)
+    """
+    valid = None
+    emo_dict = None
+
     try:
         if file_name[-4:] == ".wav":
             valid, emo_dict = emodict_from_wav(file_name)
@@ -137,13 +145,30 @@ def emo_distribution_text(file_name):
             valid, emo_dict = emodict_from_ogg(file_name)
         else:
             raise RuntimeError
-
-        if valid:
-            return with_emoji(emo_dict, emoji_mapping)
-        else:
-            return ["\_(^_^)_/"]
     except:
         logger.warning("Wrong file format")
+
+    return valid, emo_dict
+
+
+def to_text(valid, emo_dict):
+    if valid:
+        return with_emoji(emo_dict, emoji_mapping)
+    else:
+        return ["\_(^_^)_/"]
+
+
+def emo_distance(emo_dict1, emo_dict2):
+    def get_array(emo_dict):
+        return np.array(list(map(lambda x: x[1], sorted(emo_dict.items(), key=lambda x: x[0]))))
+
+    emotions1 = get_array(emo_dict1)
+    emotions2 = get_array(emo_dict2)
+
+    tmp_sum = sum((emotions1 - emotions2) ** 2)
+
+    return np.sqrt(tmp_sum)
+
 
 if __name__ == '__main__':
     raise RuntimeError
