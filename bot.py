@@ -58,31 +58,37 @@ def button(bot, update):
         query.message.reply_text('Please choose emotion:', reply_markup=reply_markup)
 
     else:
-        emo_action = rev_actions[query.data]
-        emotion = rev_mapping[emo_action]
+        keyboard_aswer(bot, query)
 
-        bot.edit_message_text(text="So you chose {emo}. Listen and record your own speech".format(emo=emo_action),
-                              chat_id=query.message.chat_id,
-                              message_id=query.message.message_id)
 
-        logger.info("Sent file: " + send_emo(emotion))
-        bot.send_voice(chat_id=query.message.chat_id, voice=open(send_emo(emotion), 'rb'))
+def keyboard_aswer(bot, query):
+    """
+    Response to the selection on keyboard - send audio
+    sample of selected emotion
+    """
+    emo_action = rev_actions[query.data]
+    emotion = rev_mapping[emo_action]
 
-        # Send emotions by Tim Urban: https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator
-        text = list()
-        text.append(' --- Emotions by Tim Urban: ===> ')
-        text.extend(emo_distribution_text(send_emo(emotion)))
-        text.append(' <==== "Inside the mind of a master procrastinator" --- ')
-        text = '\n'.join(text)
+    bot.edit_message_text(text="So you chose {emo}. Listen and record your own speech".format(emo=emo_action),
+                          chat_id=query.message.chat_id,
+                          message_id=query.message.message_id)
 
-        query.message.reply_text(text)
+    logger.info("Sent file: " + send_emo(emotion))
+    bot.send_voice(chat_id=query.message.chat_id, voice=open(send_emo(emotion), 'rb'))
+
+    # Send emotions by Tim Urban: https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator
+    text = list()
+    text.append(' --- Emotions by Tim Urban: ===> ')
+    text.extend(emo_distribution_text(send_emo(emotion)))
+    text.append(' <==== "Inside the mind of a master procrastinator" --- ')
+    text = '\n'.join(text)
+
+    query.message.reply_text(text)
 
 
 def emotion_handler(bot, update):
     """
-    :param bot:
-    :param update:
-    :return:
+    Detect emotions in received voice message
     """
     file_id = update.message.voice.file_id
     file = bot.getFile(file_id)
