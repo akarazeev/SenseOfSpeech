@@ -5,21 +5,17 @@ import sys
 import os
 
 from open_vok.api import Vokaturi
+from accessories import emoji_mapping
 
-OS_MAPPING = {
-    'darwin': 'mac',
-    'linux2': 'linux',
-    'linux' : 'linux' 
-}
+import audiotranscode
+Vokaturi.load("open_vok/lib/Vokaturi_mac.so")
 
-OS = OS_MAPPING[sys.platform]
+import logging
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
-if OS == 'mac':
-    import audiotranscode
-    Vokaturi.load("open_vok/lib/Vokaturi_mac.so")
-elif OS == 'linux':
-    import audiotranscode
-    Vokaturi.load("open_vok/lib/Vokaturi_linux32.so")
+logger = logging.getLogger(__name__)
 
 
 def get_sample(path_ogg):
@@ -30,20 +26,17 @@ def get_sample(path_ogg):
     path_wav = path_ogg[:-3] + 'wav'
 
     # Convert .ogg to .wav format
-    if OS == 'mac':
-        at = audiotranscode.AudioTranscode()
-        at.transcode(path_ogg, path_wav)
-    elif OS == 'linux':
-        at = audiotranscode.AudioTranscode()
-        at.transcode(path_ogg, path_wav)
-        # ogg_to_wav(path_ogg, path_wav)
+    at = audiotranscode.AudioTranscode()
+    at.transcode(path_ogg, path_wav)
+
+    # ogg_to_wav(path_ogg, path_wav)
 
     (samples, sample_rate) = sf.read(path_wav)
 
     return samples, sample_rate
 
 
-def emodict_from_path(path_wav):
+def emodict_from_wav(path_wav):
     """
     :param path_wav: .wav file
     :return:
@@ -53,7 +46,7 @@ def emodict_from_path(path_wav):
     return emodict_from_samples(samples, sample_rate)
 
 
-def emotion_wrapper(path_ogg):
+def emodict_from_ogg(path_ogg):
     """
     :param path_ogg: path to .ogg file
     :return: indicator of validity and dictionary with detected
@@ -136,6 +129,22 @@ def ogg_to_wav(path_ogg, path_wav):
     process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
     process.communicate()
 
+
+def emo_distribution_text(file_name):
+    try:
+        if file_name[-4:] == ".wav":
+            valid, emo_dict = emodict_from_wav(file_name)
+        elif file_name[-4:] == ".ogg":
+            valid, emo_dict = emodict_from_ogg(file_name)
+        else:
+            raise RuntimeError
+
+        if valid:
+            return with_emoji(emo_dict, emoji_mapping)
+        else:
+            return ["\_(^_^)_/"]
+    except:
+        logger.warning("Wrong file format")
 
 if __name__ == '__main__':
     raise RuntimeError
