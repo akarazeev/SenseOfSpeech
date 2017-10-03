@@ -1,5 +1,6 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+import emoji
 import json
 import os
 
@@ -126,8 +127,11 @@ def voice_message_handler(bot, update):
     update.message.reply_text("Distance is: {:.3f}".format(distance))
 
     if distance < 0.2:
-        update.message.reply_text("Well done!")
-
+        update.message.reply_text(emoji.emojize("Well done :thumbsup:", use_aliases=True))
+    elif distance < 0.6:
+        update.message.reply_text(emoji.emojize("It's ok :ok_hand:", use_aliases=True))
+    else:
+        update.message.reply_text(emoji.emojize("Keep trying :sweat_smile:", use_aliases=True))
 
 
 def help_function(bot, update):
