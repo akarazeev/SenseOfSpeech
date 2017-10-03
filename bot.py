@@ -3,13 +3,12 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import json
 import os
 
-from util import emodict_from_ogg, with_emoji, send_emo, emodict_from_wav, emo_distribution_text, logger
-from accessories import actions, rev_actions, emoji_mapping, mapping, rev_mapping
+from util import logger, emotion_file_path, emo_distribution_text
+from accessories import actions, rev_actions, rev_mapping
 
-####################
-#  Here Goes Bot's #
-#  Implementation  #
-####################
+#######################################
+#  @SenseOfSpeech_bot implementation  #
+#######################################
 
 
 def get_token():
@@ -58,10 +57,10 @@ def button(bot, update):
         query.message.reply_text('Please choose emotion:', reply_markup=reply_markup)
 
     else:
-        keyboard_aswer(bot, query)
+        keyboard_answer(bot, query)
 
 
-def keyboard_aswer(bot, query):
+def keyboard_answer(bot, query):
     """
     Response to the selection on keyboard - send audio
     sample of selected emotion
@@ -73,13 +72,13 @@ def keyboard_aswer(bot, query):
                           chat_id=query.message.chat_id,
                           message_id=query.message.message_id)
 
-    logger.info("Sent file: " + send_emo(emotion))
-    bot.send_voice(chat_id=query.message.chat_id, voice=open(send_emo(emotion), 'rb'))
+    logger.info("Sent file: " + emotion_file_path(emotion))
+    bot.send_voice(chat_id=query.message.chat_id, voice=open(emotion_file_path(emotion), 'rb'))
 
     # Send emotions by Tim Urban: https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator
     text = list()
     text.append(' --- Emotions by Tim Urban: ===> ')
-    text.extend(emo_distribution_text(send_emo(emotion)))
+    text.extend(emo_distribution_text(emotion_file_path(emotion)))
     text.append(' <==== "Inside the mind of a master procrastinator" --- ')
     text = '\n'.join(text)
 

@@ -4,17 +4,16 @@ import emoji
 import sys
 import os
 
+import logging
+import audiotranscode
+
 from open_vok.api import Vokaturi
 from accessories import emoji_mapping
 
-import audiotranscode
-Vokaturi.load("open_vok/lib/Vokaturi_mac.so")
 
-import logging
-# Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
-
+Vokaturi.load("open_vok/lib/Vokaturi_mac.so")
 logger = logging.getLogger(__name__)
 
 
@@ -111,7 +110,7 @@ def get_dict_of_emotions():
     return dict(tuples3)
 
 
-def send_emo(emotion, abs_path=''):
+def emotion_file_path(emotion, abs_path=''):
     """
     :param emotion:
     :param abs_path: absolute path to this file
