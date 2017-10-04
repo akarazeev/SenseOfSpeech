@@ -80,13 +80,14 @@ def keyboard_answer(bot, query):
                           chat_id=query.message.chat_id,
                           message_id=query.message.message_id)
 
-    logger.info("Sent file: " + emotion_file_path(emotion))
-    bot.send_voice(chat_id=query.message.chat_id, voice=open(emotion_file_path(emotion), 'rb'))
+    emotion_file = emotion_file_path(emotion)
+    logger.info("Sent file: " + emotion_file)
+    bot.send_voice(chat_id=query.message.chat_id, voice=open(emotion_file , 'rb'))
 
     # Send emotions by Tim Urban: https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator
     text = list()
     text.append(' --- Emotions by Tim Urban: ===> ')
-    valid, emo_dict = emo_distribution(emotion_file_path(emotion))
+    valid, emo_dict = emo_distribution(emotion_file )
     emo_sample_dict = emo_dict
     text.extend(to_text(valid, emo_dict))
     text.append(' <==== "Inside the mind of a master procrastinator" --- ')

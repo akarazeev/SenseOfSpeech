@@ -106,9 +106,17 @@ def get_dict_of_emotions():
     """
     list_res = list(filter(lambda x: x[0] != '.', os.listdir(os.path.join('res', 'audio_emotions'))))
     splitted = list(map(lambda x: x.split('_'), list_res))
-    tuples3 = list(map(lambda x: (x[1], '_'.join(x)), filter(lambda x: x[0] == '3', splitted)))
+    # tuples3 = list(map(lambda x: (x[1], '_'.join(x)), filter(lambda x: x[0] == '3', splitted)))
 
-    return dict(tuples3)
+    tuples2 = list(map(lambda x: (x[0], '_'.join(x)), filter(lambda x: len(x) == 2, splitted)))
+
+    files_dict = dict()
+    for elem in tuples2:
+        if elem[0] in files_dict:
+            files_dict[elem[0]].append(elem[1])
+        else:
+            files_dict[elem[0]] = [elem[1]]
+    return files_dict
 
 
 def emotion_file_path(emotion, abs_path=''):
@@ -116,9 +124,12 @@ def emotion_file_path(emotion, abs_path=''):
     :param emotion:
     :param abs_path: absolute path to this file
     """
-    path = get_dict_of_emotions()[emotion]
+    paths = get_dict_of_emotions()[emotion]
+    randindex = np.random.randint(0, len(paths))
+    logger.info(len(paths))
+    logger.info(randindex)
 
-    return os.path.join(abs_path, 'res', 'audio_emotions', path)
+    return os.path.join(abs_path, 'res', 'audio_emotions', paths[randindex])
 
 
 def ogg_to_wav(path_ogg, path_wav):
