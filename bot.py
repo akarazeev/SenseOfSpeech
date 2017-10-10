@@ -21,7 +21,7 @@ def get_token():
     Read bot's token from file
     :return: token
     """
-    path = 'res/token_dev.json'
+    path = 'res/token_sos.json'
 
     with open(path) as jsn:
         data = json.load(jsn)

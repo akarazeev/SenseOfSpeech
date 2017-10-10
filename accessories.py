@@ -33,7 +33,7 @@ rev_mapping = dict(zip(mapping.values(), mapping.keys()))
 OS_MAPPING = {
     'darwin': 'mac',
     'linux2': 'linux',
-    'linux' : 'linux'
+    'linux':  'linux'
 }
 
 OS = OS_MAPPING[sys.platform]
